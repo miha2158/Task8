@@ -40,9 +40,54 @@ namespace Task8
                     yield return i;
             }
         }
-        
+
+        static string GraphToString(bool[][] graph)
+        {
+            var result = new string[graph[0].Length];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = string.Empty;
+
+            foreach (bool[] edge in graph)
+                for (int j = 0; j < edge.Length; j++)
+                    result[j] += Convert.ToInt16(edge[j]) + " ";
+
+            string output = string.Empty;
+            foreach (string s in result)
+                output += s +"\n";
+
+            return output;
+        }
+
+
         static void Main(string[] args)
         {
+            bool[][] graph;
+
+            {
+                int i0;
+                WriteLine("Введите количество вершин графа");
+                while (!int.TryParse(ReadLine(), out i0) || i0 <= 1)
+                    WriteLine("Введите число больше 1");
+
+                int i1;
+                WriteLine("Введите количество рёбер графа");
+                while (!int.TryParse(ReadLine(), out i1) || i1 <= 0)
+                    WriteLine("Введите число больше 0");
+
+                graph = new bool[i1][];
+                for (int i = 0; i < graph.Length; i++)
+                {
+                    graph[i] = new bool[i0];
+                    for (int j = 0; j < graph[i].Length; j++)
+                        graph[i][j] = false;
+                }
+            }
+
+            WriteLine(GraphToString(graph));
+
+
+
+            ReadKey(true);
         }
     }
 }
