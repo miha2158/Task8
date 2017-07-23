@@ -117,12 +117,12 @@ namespace Task8
             {
                 SetCursorPosition(defaultXY.Item1 + spread * PreviousPosition.Item1,
                     defaultXY.Item2 + PreviousPosition.Item2);
-                Write(items[PreviousPosition.Item1][PreviousPosition.Item2]);
+                Write(items[PreviousPosition.Item2][PreviousPosition.Item1]);
 
                 SetCursorPosition(defaultXY.Item1 + spread * CurrentPosition.Item1,
                     defaultXY.Item2 + CurrentPosition.Item2);
                 SwapColors();
-                Write(items[CurrentPosition.Item1][CurrentPosition.Item2]);
+                Write(items[CurrentPosition.Item2][CurrentPosition.Item1]);
                 ResetColor();
 
                 bool done = false;
@@ -139,7 +139,7 @@ namespace Task8
                         PreviousPosition = CurrentPosition;
                         CurrentPosition =
                             new Tuple<int, int>(
-                                CurrentPosition.Item1 + 1 > items[CurrentPosition.Item2].Length
+                                CurrentPosition.Item1 + 1 < items[CurrentPosition.Item2].Length
                                     ? CurrentPosition.Item1 + 1
                                     : 0,
                                 CurrentPosition.Item2);
@@ -148,7 +148,7 @@ namespace Task8
                     case ConsoleKey.LeftArrow:
                         PreviousPosition = CurrentPosition;
                         CurrentPosition =
-                            new Tuple<int, int>(CurrentPosition.Item1 - 1 < 0
+                            new Tuple<int, int>(CurrentPosition.Item1 - 1 > 0
                                     ? CurrentPosition.Item1 - 1
                                     : items.Length,
                                 CurrentPosition.Item2);
@@ -157,7 +157,7 @@ namespace Task8
                     case ConsoleKey.UpArrow:
                         PreviousPosition = CurrentPosition;
                         CurrentPosition = new Tuple<int, int>(CurrentPosition.Item1,
-                            CurrentPosition.Item2 - 1 < 0
+                            CurrentPosition.Item2 - 1 > 0
                                 ? CurrentPosition.Item2 - 1
                                 : items.Length);
                         break;
@@ -165,7 +165,7 @@ namespace Task8
                     case ConsoleKey.DownArrow:
                         PreviousPosition = CurrentPosition;
                         CurrentPosition = new Tuple<int, int>(CurrentPosition.Item1,
-                            CurrentPosition.Item2 + 1 > items[CurrentPosition.Item2].Length
+                            CurrentPosition.Item2 + 1 < items[CurrentPosition.Item2].Length
                                 ? CurrentPosition.Item2 + 1
                                 : 0);
                         break;
