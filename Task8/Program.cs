@@ -41,21 +41,48 @@ namespace Task8
             }
         }
 
-        static string GraphToString(bool[][] graph)
+        static string[][] ToString2D(bool[][] graph)
         {
-            var result = new string[graph[0].Length];
+            var result = new string[graph[0].Length][];
             for (int i = 0; i < result.Length; i++)
-                result[i] = string.Empty;
+            {
+                result[i] = new string[graph.Length];
 
-            foreach (bool[] edge in graph)
-                for (int j = 0; j < edge.Length; j++)
-                    result[j] += Convert.ToInt16(edge[j]) + " ";
+                for (int j = 0; j < result[i].Length; j++)
+                    result[i][j] = Convert.ToInt32(graph[j][i]).ToString();
+            }
+            return result;
+        }
 
-            string output = string.Empty;
-            foreach (string s in result)
-                output += s +"\n";
+        static string[] ToString1D(bool[][] graph)
+        {
+            var preResult = ToString2D(graph);
+            var result = new string[graph[0].Length];
 
-            return output;
+            for (var i = 0; i < preResult.Length; i++)
+            {
+                result[i] = string.Join(" ", preResult[i]);
+            }
+
+            return result;
+        }
+
+        static string ToString(bool[][] graph)
+        {
+            return string.Join("\n", ToString1D(graph));
+        }
+
+        private static void SwapColors()
+        {
+            var temp = BackgroundColor;
+            BackgroundColor = ForegroundColor;
+            ForegroundColor = temp;
+        }
+
+
+        private static int SelectorXY(string[][] items)
+        {
+            return 0;
         }
 
 
@@ -83,7 +110,7 @@ namespace Task8
                 }
             }
 
-            WriteLine(GraphToString(graph));
+            WriteLine(ToString(graph));
 
 
 
