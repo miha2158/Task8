@@ -20,7 +20,6 @@ namespace Task8
                         if(edge[i] && i != n && !visited[i])
                             step(graph, visited, i);
         }
-        
         static IEnumerable<int> FindBridges(bool[][] graph)
         {
             for (int i = 0; i < graph.Length; i++)
@@ -40,6 +39,8 @@ namespace Task8
                     yield return i;
             }
         }
+
+        #region GraphToString
 
         static string[][] ToString2D(bool[][] graph)
         {
@@ -72,13 +73,16 @@ namespace Task8
             return string.Join("\n", ToString1D(graph));
         }
 
+        #endregion
+
+        #region Menu
+
         private static void SwapColors()
         {
             var temp = BackgroundColor;
             BackgroundColor = ForegroundColor;
             ForegroundColor = temp;
         }
-
         static void DoSwapped(Action action)
         {
             SwapColors();
@@ -201,10 +205,7 @@ namespace Task8
             return new Tuple<int, int>(0, 0);
         }
 
-
-
-
-
+        #endregion
 
         static bool[][] graph;
         
@@ -236,10 +237,9 @@ namespace Task8
 
 
 
+
             WriteLine(ToString(graph));
-
-
-
+            
             ReadKey(true);
         }
     }
