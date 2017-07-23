@@ -61,7 +61,7 @@ namespace Task8
 
             for (var i = 0; i < preResult.Length; i++)
             {
-                result[i] = string.Join(" ", preResult[i]);
+                result[i] = string.Join("  ", preResult[i]);
             }
 
             return result;
@@ -79,6 +79,12 @@ namespace Task8
             ForegroundColor = temp;
         }
 
+        static void DoSwapped(Action action)
+        {
+            SwapColors();
+            action.Invoke();
+            SwapColors();
+        }
 
         private static Tuple<int, int> SelectorXY(string[][] items, int XOffset = 3)
         {
@@ -121,21 +127,25 @@ namespace Task8
 
                 SetCursorPosition(defaultXY.Item1 + spread * CurrentPosition.Item1,
                     defaultXY.Item2 + CurrentPosition.Item2);
-                SwapColors();
-                Write(items[CurrentPosition.Item2][CurrentPosition.Item1]);
-                ResetColor();
+                DoSwapped(delegate { Write(items[CurrentPosition.Item2][CurrentPosition.Item1]); });
 
                 bool done = false;
                 var key = ReadKey(true).Key;
 
                 switch (key)
                 {
-                    case ConsoleKey.Escape:
                     case ConsoleKey.Enter:
+                        graph[CurrentPosition.Item1][CurrentPosition.Item2] =
+                            !graph[CurrentPosition.Item1][CurrentPosition.Item2];
+                        items = ToString2D(graph);
+                    break;
+
+                    case ConsoleKey.Escape:
                         done = true;
                         break;
 
                     case ConsoleKey.RightArrow:
+                    {
                         PreviousPosition = CurrentPosition;
                         CurrentPosition =
                             new Tuple<int, int>(
@@ -144,46 +154,62 @@ namespace Task8
                                     : 0,
                                 CurrentPosition.Item2);
                         break;
+                    }
 
                     case ConsoleKey.LeftArrow:
+                    {
                         PreviousPosition = CurrentPosition;
                         CurrentPosition =
-                            new Tuple<int, int>(CurrentPosition.Item1 - 1 > 0
+                            new Tuple<int, int>(CurrentPosition.Item1 - 1 >= 0
                                     ? CurrentPosition.Item1 - 1
-                                    : items.Length,
+                                    : items[0].Length - 1,
                                 CurrentPosition.Item2);
                         break;
+                    }
 
                     case ConsoleKey.UpArrow:
+                    {
                         PreviousPosition = CurrentPosition;
                         CurrentPosition = new Tuple<int, int>(CurrentPosition.Item1,
-                            CurrentPosition.Item2 - 1 > 0
+                            CurrentPosition.Item2 - 1 >= 0
                                 ? CurrentPosition.Item2 - 1
-                                : items.Length);
+                                : items.Length - 1);
                         break;
+                    }
 
                     case ConsoleKey.DownArrow:
+                    {
                         PreviousPosition = CurrentPosition;
                         CurrentPosition = new Tuple<int, int>(CurrentPosition.Item1,
-                            CurrentPosition.Item2 + 1 < items[CurrentPosition.Item2].Length
+                            CurrentPosition.Item2 + 1 < items.Length
                                 ? CurrentPosition.Item2 + 1
                                 : 0);
                         break;
+                    }
                 }
 
                 if (done)
+                {
                     break;
+                }
             }
 
 
+
+            SetCursorPosition(0,defaultXY.Item2 + items.Length + 1);
             CursorVisible = CursorBefore;
             return new Tuple<int, int>(0, 0);
         }
 
 
+
+
+
+
+        static bool[][] graph;
+        
         static void Main(string[] args)
         {
-            bool[][] graph;
 
             {
                 int i0;
