@@ -20,7 +20,27 @@ namespace Task8
                         if(edge[i] && i != n && !visited[i])
                             step(graph, visited, i);
         }
+        
+        static IEnumerable<int> FindBridges(bool[][] graph)
+        {
+            for (int i = 0; i < graph.Length; i++)
+            {
+                var visited = new bool[graph[0].Length];
+                for (int j = 0; j < visited.Length; j++)
+                    visited[j] = false;
 
+                var tempgraph = new bool[graph.Length - 1][];
+                for (int j = 0; j < graph.Length; j++)
+                    if (j != i)
+                        tempgraph[j] = graph[j];
+
+                step(tempgraph, visited, 0);
+
+                if (visited.Contains(false))
+                    yield return i;
+            }
+        }
+        
         static void Main(string[] args)
         {
         }
