@@ -80,9 +80,104 @@ namespace Task8
         }
 
 
-        private static int SelectorXY(string[][] items)
+        private static Tuple<int, int> SelectorXY(string[][] items, int XOffset = 3)
         {
-            return 0;
+            var CursorBefore = CursorVisible;
+            CursorVisible = false;
+
+            var offset = new Tuple<int, int>(XOffset, 1);
+            SetCursorPosition(CursorLeft + offset.Item1, CursorTop + offset.Item2);
+            var defaultXY = new Tuple<int, int>(CursorLeft, CursorTop);
+
+            var PreviousPosition = new Tuple<int, int>(0, 0);
+            var CurrentPosition = new Tuple<int, int>(0, 0);
+
+            int maxlength = items[0][0].Length;
+            {
+                foreach (string[] s1 in items)
+                    foreach (string s in s1)
+                        if (s.Length > maxlength)
+                            maxlength = s.Length;
+            }
+
+            int spread = maxlength + offset.Item1;
+
+            foreach (string[] item in items)
+            {
+                foreach (string s in item)
+                {
+                    Write(s);
+                    CursorLeft = CursorLeft - s.Length + spread;
+                }
+
+                SetCursorPosition(defaultXY.Item1, CursorTop + 1);
+            }
+
+            while (true)
+            {
+                SetCursorPosition(defaultXY.Item1 + spread * PreviousPosition.Item1,
+                    defaultXY.Item2 + PreviousPosition.Item2);
+                Write(items[PreviousPosition.Item1][PreviousPosition.Item2]);
+
+                SetCursorPosition(defaultXY.Item1 + spread * CurrentPosition.Item1,
+                    defaultXY.Item2 + CurrentPosition.Item2);
+                SwapColors();
+                Write(items[CurrentPosition.Item1][CurrentPosition.Item2]);
+                ResetColor();
+
+                bool done = false;
+                var key = ReadKey(true).Key;
+
+                switch (key)
+                {
+                    case ConsoleKey.Escape:
+                    case ConsoleKey.Enter:
+                        done = true;
+                        break;
+
+                    case ConsoleKey.RightArrow:
+                        PreviousPosition = CurrentPosition;
+                        CurrentPosition =
+                            new Tuple<int, int>(
+                                CurrentPosition.Item1 + 1 > items[CurrentPosition.Item2].Length
+                                    ? CurrentPosition.Item1 + 1
+                                    : 0,
+                                CurrentPosition.Item2);
+                        break;
+
+                    case ConsoleKey.LeftArrow:
+                        PreviousPosition = CurrentPosition;
+                        CurrentPosition =
+                            new Tuple<int, int>(CurrentPosition.Item1 - 1 < 0
+                                    ? CurrentPosition.Item1 - 1
+                                    : items.Length,
+                                CurrentPosition.Item2);
+                        break;
+
+                    case ConsoleKey.UpArrow:
+                        PreviousPosition = CurrentPosition;
+                        CurrentPosition = new Tuple<int, int>(CurrentPosition.Item1,
+                            CurrentPosition.Item2 - 1 < 0
+                                ? CurrentPosition.Item2 - 1
+                                : items.Length);
+                        break;
+
+                    case ConsoleKey.DownArrow:
+                        PreviousPosition = CurrentPosition;
+                        CurrentPosition = new Tuple<int, int>(CurrentPosition.Item1,
+                            CurrentPosition.Item2 + 1 > items[CurrentPosition.Item2].Length
+                                ? CurrentPosition.Item2 + 1
+                                : 0);
+                        break;
+                }
+
+                if (done)
+                    break;
+            }
+
+
+            CursorVisible = CursorBefore;
+            return new Tuple<int, int>(0, 0);
         }
 
 
@@ -109,6 +204,11 @@ namespace Task8
                         graph[i][j] = false;
                 }
             }
+
+            SelectorXY(ToString2D(graph));
+
+
+
 
             WriteLine(ToString(graph));
 
