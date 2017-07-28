@@ -31,14 +31,14 @@ namespace Task8
                 for (int j = 0; j < visited.Length; j++)
                     visited[j] = false;
 
-                var tempgraph1 = new bool[graph.Length - 1][];
+                var tempgraph = new bool[graph.Length - 1][];
                 for (int j = 0; j < graph.Length; j++)
                     if (j < i)
-                        tempgraph1[j] = graph[j];
+                        tempgraph[j] = graph[j];
                 else if (j > i)
-                        tempgraph1[j - 1] = graph[j];
+                        tempgraph[j - 1] = graph[j];
 
-                step(tempgraph1, visited, 0);
+                step(tempgraph, visited, 0);
 
                 if (visited.Contains(false))
                     yield return i;
@@ -47,16 +47,24 @@ namespace Task8
 
         static bool CheckGraph(bool[][] graph)
         {
-            foreach (bool[] b in graph)
+            for (int i = 0; i < graph.Length; i++)
             {
-                int result = b.Sum(Convert.ToInt32);
-
+                int result = graph[i].Sum(Convert.ToInt32);
                 if (result != 2)
                     return false;
+
+                for (int j = i + 1; j < graph.Length; j++)
+                {
+                    bool match = graph[i][0] == graph[j][0];
+                    for (int k = 1; k < graph[j].Length; k++)
+                        match = match && (graph[i][k] == graph[j][k]);
+
+                    if (match)
+                        return false;
+                }
             }
 
             return true;
-            //return graph.Select(b => b.Sum(Convert.ToInt32)).All(result => result == 2);
         }
 
         #endregion
@@ -259,7 +267,7 @@ namespace Task8
                 if (CheckGraph(graph))
                     break;
 
-                WriteLine("Ошибка. Убедитесь что каждый столбец имеет ровно 2 единицы");
+                WriteLine("Ошибка. Убедитесь что столбцы не повторяются и каждый из них имеет ровно 2 единицы");
             }
 
             var result = FindBridges(graph).ToArray();
@@ -267,6 +275,8 @@ namespace Task8
                 result[i]++;
 
             string output = string.Join(" ", result);
+            if (output.Trim() == string.Empty)
+                output = "Мостов не найдено";
             WriteLine("Найденные мосты:\n {0}", output);
 
             ReadKey(true);
