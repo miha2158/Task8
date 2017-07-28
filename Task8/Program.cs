@@ -10,16 +10,19 @@ namespace Task8
 {
     class Program
     {
+        #region Processing
+
         static void step(bool[][] graph, bool[] visited, int n)
         {
             visited[n] = true;
 
             foreach (bool[] edge in graph)
-                if(edge[n])
+                if (edge[n])
                     for (int i = 0; i < edge.Length; i++)
-                        if(edge[i] && i != n && !visited[i])
+                        if (edge[i] && i != n && !visited[i])
                             step(graph, visited, i);
         }
+
         static IEnumerable<int> FindBridges(bool[][] graph)
         {
             for (int i = 0; i < graph.Length; i++)
@@ -28,17 +31,35 @@ namespace Task8
                 for (int j = 0; j < visited.Length; j++)
                     visited[j] = false;
 
-                var tempgraph = new bool[graph.Length - 1][];
+                var tempgraph1 = new bool[graph.Length - 1][];
                 for (int j = 0; j < graph.Length; j++)
-                    if (j != i)
-                        tempgraph[j] = graph[j];
+                    if (j < i)
+                        tempgraph1[j] = graph[j];
+                else if (j > i)
+                        tempgraph1[j - 1] = graph[j];
 
-                step(tempgraph, visited, 0);
+                step(tempgraph1, visited, 0);
 
                 if (visited.Contains(false))
                     yield return i;
             }
         }
+
+        static bool CheckGraph(bool[][] graph)
+        {
+            foreach (bool[] b in graph)
+            {
+                int result = b.Sum(Convert.ToInt32);
+
+                if (result != 2)
+                    return false;
+            }
+
+            return true;
+            //return graph.Select(b => b.Sum(Convert.ToInt32)).All(result => result == 2);
+        }
+
+        #endregion
 
         #region GraphToString
 
@@ -52,6 +73,7 @@ namespace Task8
                 for (int j = 0; j < result[i].Length; j++)
                     result[i][j] = Convert.ToInt32(graph[j][i]).ToString();
             }
+
             return result;
         }
 
@@ -83,6 +105,7 @@ namespace Task8
             BackgroundColor = ForegroundColor;
             ForegroundColor = temp;
         }
+
         static void DoSwapped(Action action)
         {
             SwapColors();
@@ -90,12 +113,12 @@ namespace Task8
             SwapColors();
         }
 
-        private static Tuple<int, int> SelectorXY(string[][] items, int XOffset = 3)
+        private static void SelectorXY(string[][] items)
         {
             var CursorBefore = CursorVisible;
             CursorVisible = false;
 
-            var offset = new Tuple<int, int>(XOffset, 1);
+            var offset = new Tuple<int, int>(3, 1);
             SetCursorPosition(CursorLeft + offset.Item1, CursorTop + offset.Item2);
             var defaultXY = new Tuple<int, int>(CursorLeft, CursorTop);
 
@@ -133,21 +156,22 @@ namespace Task8
                     defaultXY.Item2 + CurrentPosition.Item2);
                 DoSwapped(delegate { Write(items[CurrentPosition.Item2][CurrentPosition.Item1]); });
 
-                bool done = false;
-                var key = ReadKey(true).Key;
-
-                switch (key)
+                switch (ReadKey(true).Key)
                 {
                     case ConsoleKey.Enter:
                         graph[CurrentPosition.Item1][CurrentPosition.Item2] =
                             !graph[CurrentPosition.Item1][CurrentPosition.Item2];
                         items = ToString2D(graph);
-                    break;
-
-                    case ConsoleKey.Escape:
-                        done = true;
                         break;
 
+                    case ConsoleKey.Escape:
+                    {
+                        SetCursorPosition(0, defaultXY.Item2 + items.Length + 1);
+                        CursorVisible = CursorBefore;
+                    }
+                        return;
+
+                    case ConsoleKey.D:
                     case ConsoleKey.RightArrow:
                     {
                         PreviousPosition = CurrentPosition;
@@ -157,9 +181,10 @@ namespace Task8
                                     ? CurrentPosition.Item1 + 1
                                     : 0,
                                 CurrentPosition.Item2);
-                        break;
                     }
+                        break;
 
+                    case ConsoleKey.A:
                     case ConsoleKey.LeftArrow:
                     {
                         PreviousPosition = CurrentPosition;
@@ -168,9 +193,10 @@ namespace Task8
                                     ? CurrentPosition.Item1 - 1
                                     : items[0].Length - 1,
                                 CurrentPosition.Item2);
-                        break;
                     }
+                        break;
 
+                    case ConsoleKey.W:
                     case ConsoleKey.UpArrow:
                     {
                         PreviousPosition = CurrentPosition;
@@ -178,9 +204,10 @@ namespace Task8
                             CurrentPosition.Item2 - 1 >= 0
                                 ? CurrentPosition.Item2 - 1
                                 : items.Length - 1);
-                        break;
                     }
+                        break;
 
+                    case ConsoleKey.S:
                     case ConsoleKey.DownArrow:
                     {
                         PreviousPosition = CurrentPosition;
@@ -188,30 +215,18 @@ namespace Task8
                             CurrentPosition.Item2 + 1 < items.Length
                                 ? CurrentPosition.Item2 + 1
                                 : 0);
-                        break;
                     }
-                }
-
-                if (done)
-                {
-                    break;
+                        break;
                 }
             }
-
-
-
-            SetCursorPosition(0,defaultXY.Item2 + items.Length + 1);
-            CursorVisible = CursorBefore;
-            return new Tuple<int, int>(0, 0);
         }
 
         #endregion
 
         static bool[][] graph;
-        
+
         static void Main(string[] args)
         {
-
             {
                 int i0;
                 WriteLine("Введите количество вершин графа");
@@ -220,8 +235,8 @@ namespace Task8
 
                 int i1;
                 WriteLine("Введите количество рёбер графа");
-                while (!int.TryParse(ReadLine(), out i1) || i1 <= 0)
-                    WriteLine("Введите число больше 0");
+                while (!int.TryParse(ReadLine(), out i1) || i1 <= 0 || i1 > i0 * (i0 - 1) / 2)
+                    WriteLine("Введите число больше 0 и меньше {0}", i0 * (i0 - 1) / 2);
 
                 graph = new bool[i1][];
                 for (int i = 0; i < graph.Length; i++)
@@ -232,14 +247,28 @@ namespace Task8
                 }
             }
 
-            SelectorXY(ToString2D(graph));
+            while (true)
+            {
+                WriteLine(@"
+    Введите матрицу
+    Навигация с помощью стрелочек
+    Изменение с помошью Enter
+    Выход с помошью Escape");
+                SelectorXY(ToString2D(graph));
 
+                if (CheckGraph(graph))
+                    break;
 
+                WriteLine("Ошибка. Убедитесь что каждый столбец имеет ровно 2 единицы");
+            }
 
+            var result = FindBridges(graph).ToArray();
+            for (int i = 0; i < result.Length; i++)
+                result[i]++;
 
+            string output = string.Join(" ", result);
+            WriteLine("Найденные мосты:\n {0}", output);
 
-            WriteLine(ToString(graph));
-            
             ReadKey(true);
         }
     }
