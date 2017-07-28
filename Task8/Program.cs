@@ -12,31 +12,31 @@ namespace Task8
     {
         #region Processing
 
-        static void step(bool[][] graph, bool[] visited, int n)
+        static void step(bool[][] graph1, bool[] visited, int n)
         {
             visited[n] = true;
 
-            foreach (bool[] edge in graph)
+            foreach (bool[] edge in graph1)
                 if (edge[n])
                     for (int i = 0; i < edge.Length; i++)
                         if (edge[i] && i != n && !visited[i])
-                            step(graph, visited, i);
+                            step(graph1, visited, i);
         }
 
-        static IEnumerable<int> FindBridges(bool[][] graph)
+        static IEnumerable<int> FindBridges(bool[][] graph1)
         {
-            for (int i = 0; i < graph.Length; i++)
+            for (int i = 0; i < graph1.Length; i++)
             {
-                var visited = new bool[graph[0].Length];
+                var visited = new bool[graph1[0].Length];
                 for (int j = 0; j < visited.Length; j++)
                     visited[j] = false;
 
-                var tempgraph = new bool[graph.Length - 1][];
-                for (int j = 0; j < graph.Length; j++)
+                var tempgraph = new bool[graph1.Length - 1][];
+                for (int j = 0; j < graph1.Length; j++)
                     if (j < i)
-                        tempgraph[j] = graph[j];
+                        tempgraph[j] = graph1[j];
                 else if (j > i)
-                        tempgraph[j - 1] = graph[j];
+                        tempgraph[j - 1] = graph1[j];
 
                 step(tempgraph, visited, 0);
 
@@ -45,19 +45,44 @@ namespace Task8
             }
         }
 
-        static bool CheckGraph(bool[][] graph)
+        static bool[][] Shorten(bool[][] graph1)
         {
-            for (int i = 0; i < graph.Length; i++)
+            var result1 = new List<bool>[graph1.Length];
+
+            for (int i = 0; i < graph1.Length; i++)
+                result1[i] = new List<bool>(0);
+
+            for (int i = 0; i < graph1[0].Length; i++)
             {
-                int result = graph[i].Sum(Convert.ToInt32);
+                bool all = true;
+                foreach (bool[] t in graph1)
+                    all = all && (t[i] == false);
+
+                if (all)
+                    for (int j = 0; j < graph1.Length; j++)
+                        result1[j].Add(graph1[j][i]);
+            }
+
+            var result = new bool[result1.Length][];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = result1[i].ToArray();
+
+            return result;
+        }
+
+        static bool CheckGraph(bool[][] graph1)
+        {
+            for (int i = 0; i < graph1.Length; i++)
+            {
+                int result = graph1[i].Sum(Convert.ToInt32);
                 if (result != 2)
                     return false;
 
-                for (int j = i + 1; j < graph.Length; j++)
+                for (int j = i + 1; j < graph1.Length; j++)
                 {
-                    bool match = graph[i][0] == graph[j][0];
-                    for (int k = 1; k < graph[j].Length; k++)
-                        match = match && (graph[i][k] == graph[j][k]);
+                    bool match = graph1[i][0] == graph1[j][0];
+                    for (int k = 1; k < graph1[j].Length; k++)
+                        match = match && (graph1[i][k] == graph1[j][k]);
 
                     if (match)
                         return false;
@@ -71,15 +96,15 @@ namespace Task8
 
         #region GraphToString
 
-        static string[][] ToString2D(bool[][] graph)
+        static string[][] ToString2D(bool[][] graph1)
         {
-            var result = new string[graph[0].Length][];
+            var result = new string[graph1[0].Length][];
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = new string[graph.Length];
+                result[i] = new string[graph1.Length];
 
                 for (int j = 0; j < result[i].Length; j++)
-                    result[i][j] = Convert.ToInt32(graph[j][i]).ToString();
+                    result[i][j] = Convert.ToInt32(graph1[j][i]).ToString();
             }
 
             return result;
@@ -270,7 +295,7 @@ namespace Task8
                 WriteLine("Ошибка. Убедитесь что столбцы не повторяются и каждый из них имеет ровно 2 единицы");
             }
 
-            var result = FindBridges(graph).ToArray();
+            var result = FindBridges(Shorten(graph)).ToArray();
             for (int i = 0; i < result.Length; i++)
                 result[i]++;
 
