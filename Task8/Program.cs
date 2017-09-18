@@ -1,7 +1,6 @@
 ﻿using System;
 
 using static System.Console;
-using static Task8.ext;
 
 namespace Task8
 {
