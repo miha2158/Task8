@@ -4,19 +4,6 @@ using static System.Console;
 
 namespace Task8
 {
-    public static class ext
-    {
-        public static void Add <T>(this T[] arr, T elem)
-        {
-            var newarr = new T[arr.Length + 1];
-            for (int i = 0; i < arr.Length; i++)
-                newarr[i] = arr[i];
-
-            newarr[arr.Length] = elem;
-            arr = newarr;
-        }
-    }
-
     class Program
     {
 
@@ -56,7 +43,14 @@ namespace Task8
                         contains = true;
 
                 if (contains)
-                    res.Add(i);
+                {
+                    var newarr = new int[res.Length + 1];
+                    for (int j = 0; j < res.Length; j++)
+                        newarr[j] = res[j];
+
+                    newarr[res.Length] = i;
+                    res = newarr;
+                }
             }
 
             return res;
@@ -71,13 +65,20 @@ namespace Task8
 
             for (int i = 0; i < graph1[0].Length; i++)
             {
-                bool all = true;
+                bool all = false;
                 foreach (bool[] t in graph1)
-                    all = all && (t[i] == false);
+                    all = all || t[i];
 
                 if (all)
                     for (int j = 0; j < graph1.Length; j++)
-                        result1[j].Add(graph1[j][i]);
+                    {
+                        var newarr = new bool[result1[j].Length + 1];
+                        for (int k = 0; k < result1[j].Length; k++)
+                            newarr[k] = result1[j][k];
+
+                        newarr[result1[j].Length] = graph1[j][i];
+                        result1[j] = newarr;
+                    }
             }
 
             var result = new bool[result1.Length][];
@@ -128,7 +129,6 @@ namespace Task8
 
             return result;
         }
-
         static string[] ToString1D(bool[][] graph)
         {
             var preResult = ToString2D(graph);
@@ -141,7 +141,6 @@ namespace Task8
 
             return result;
         }
-
         static string ToString(bool[][] graph)
         {
             return string.Join("\n", ToString1D(graph));
@@ -157,14 +156,12 @@ namespace Task8
             BackgroundColor = ForegroundColor;
             ForegroundColor = temp;
         }
-
         static void DoSwapped(Action action)
         {
             SwapColors();
             action.Invoke();
             SwapColors();
         }
-
         private static void SelectorXY(string[][] items)
         {
             var CursorBefore = CursorVisible;
@@ -298,20 +295,28 @@ namespace Task8
                         graph[i][j] = false;
                 }
             }
+            Clear();
 
             while (true)
             {
+                ForegroundColor = ConsoleColor.Red;
                 WriteLine(@"
     Введите матрицу
     Навигация с помощью стрелочек
     Изменение с помошью Enter
     Выход с помошью Escape");
+                ResetColor();
+
+                WriteLine("Нажмите любую клавишу чтобы продолжить");
+                ReadKey(true);
+
                 SelectorXY(ToString2D(graph));
 
                 if (CheckGraph(graph))
                     break;
-
+                Clear();
                 WriteLine("Ошибка. Убедитесь что столбцы не повторяются и каждый из них имеет ровно 2 единицы");
+
             }
 
             var result = FindBridges(Shorten(graph));
